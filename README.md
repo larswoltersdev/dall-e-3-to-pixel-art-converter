@@ -6,6 +6,8 @@ This is a experimental project to convert DALL-E 3 generated pixel art to 'real'
 
 Make sure you install atleast Python 3 and install the required packages using `pip`.
 
+To run the server: `uvicorn main:app --reload`
+
 1. Visit `http://127.0.0.1:8000/docs`
 2. Try out the `/generate` endpoint
 
