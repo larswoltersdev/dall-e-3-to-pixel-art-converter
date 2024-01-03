@@ -21,12 +21,13 @@ Example body:
   "prompt": "Create a pixel art image of a dark knight with his sword in the ground, resting on it. The scenery is a battlefield.",
   "grid_size": 64,
   "image_size": 64,
-  "mode": "png", // Either 'png' or 'svg'
+  "mode": "png",
 }
 ```
 
-3. The progress is printed in your Terminal as well as the generated image URL
-4. The response will be either a SVG (HTML) or a PNG (base64) (note: the larger the dimensions, the bigger the response)
+3. The mode can either be `png` or `svg`
+4. The progress is printed in your Terminal as well as the generated image URL
+5. The response will be either a SVG (HTML) or a PNG (base64) (note: the larger the dimensions, the bigger the response)
 
 ## Example results
 
