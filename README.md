@@ -15,7 +15,7 @@ To run the server: `uvicorn main:app --reload`
 
 Example body:
 
-```
+```json
 {
   "api_token": "test",
   "prompt": "Create a pixel art image of a dark knight with his sword in the ground, resting on it. The scenery is a battlefield.",
