@@ -4,7 +4,9 @@ This is a experimental project to convert DALL-E 3 generated pixel art to 'real'
 
 ## Usage
 
-Make sure you install atleast Python 3 and install the required packages using `pip`.
+Make sure you install atleast Python 3 and install the required packages using `pip`. You will also need an OpenAI API account with credits.
+
+To test the tool:
 
 To run the server: `uvicorn main:app --reload`
 
@@ -18,12 +20,13 @@ Example body:
   "api_token": "test",
   "prompt": "Create a pixel art image of a dark knight with his sword in the ground, resting on it. The scenery is a battlefield.",
   "grid_size": 64,
-  "image_size": 64
+  "image_size": 64,
+  "mode": "png", // Either 'png' or 'svg'
 }
 ```
 
 3. The progress is printed in your Terminal as well as the generated image URL
-4. The response will be a SVG (the larger the dimensions, the bigger the response)
+4. The response will be either a SVG (HTML) or a PNG (base64) (note: the larger the dimensions, the bigger the response)
 
 ## Example results
 

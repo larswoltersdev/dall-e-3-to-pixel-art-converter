@@ -3,9 +3,11 @@ import requests
 import numpy as np
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
+import base64
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from openai import AsyncOpenAI
 from io import BytesIO
@@ -21,6 +23,7 @@ class PixelArt(BaseModel):
     prompt: str
     grid_size: int
     image_size: int
+    mode: str
 
 client = AsyncOpenAI()
 
@@ -39,7 +42,7 @@ async def generate(pixel_art: PixelArt):
     prevention = "I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS:"
     prompt = pixel_art.prompt
 
-    prevent_revision_prompt = prevention + ' ' + prompt
+    prevent_revision_prompt = prevention + ' make a pixel art illustration of ' + prompt + ' with a height of ' + str(pixel_art.grid_size) + ' and a width of ' + str(pixel_art.grid_size) + ' pixels.'
 
     print('Generating image with prompt: ' + prompt)
     response = await client.images.generate(
@@ -60,19 +63,33 @@ async def generate(pixel_art: PixelArt):
 
     print('Resizing and pixelizing image')
     image = image.resize((pixel_art.grid_size, pixel_art.grid_size), Image.LANCZOS)
-    pixels = np.array(image)
 
-    print('Generating SVG image')
-    pixel_size = pixel_art.image_size / pixel_art.grid_size
-    svg = ET.Element('svg', width=str(pixel_art.image_size), height=str(pixel_art.image_size), xmlns="http://www.w3.org/2000/svg")
-    for i in range(pixel_art.grid_size):
-        for j in range(pixel_art.grid_size):
-            color = f'rgb({pixels[i, j, 0]}, {pixels[i, j, 1]}, {pixels[i, j, 2]})'
-            ET.SubElement(svg, 'rect', x=str(j*pixel_size), y=str(i*pixel_size), width=str(pixel_size), height=str(pixel_size), fill=color)
+    # If the mode is 'png', return the image as a base64 encoded .png file
+    if pixel_art.mode == 'png':
+        img_byte_arr = BytesIO()
+        image.save(img_byte_arr, format='PNG')
+        img_byte_arr = img_byte_arr.getvalue()
 
-    print('Converting SVG to HTML')
-    rough_string = ET.tostring(svg, 'utf-8')
-    reparsed = xml.dom.minidom.parseString(rough_string)
-    svg_code = reparsed.toprettyxml(indent="  ")
+        base64_encoded_result = base64.b64encode(img_byte_arr).decode('ascii')
 
-    return HTMLResponse(content=svg_code)
+        return JSONResponse(content={"image": base64_encoded_result})
+
+    # If the mode is 'svg', return the image as an SVG file
+    if pixel_art.mode == 'svg':
+        print('Converting image to numpy array')
+        pixels = np.array(image)
+
+        print('Generating SVG image')
+        pixel_size = pixel_art.image_size / pixel_art.grid_size
+        svg = ET.Element('svg', width=str(pixel_art.image_size), height=str(pixel_art.image_size), xmlns="http://www.w3.org/2000/svg")
+        for i in range(pixel_art.grid_size):
+            for j in range(pixel_art.grid_size):
+                color = f'rgb({pixels[i, j, 0]}, {pixels[i, j, 1]}, {pixels[i, j, 2]})'
+                ET.SubElement(svg, 'rect', x=str(j*pixel_size), y=str(i*pixel_size), width=str(pixel_size), height=str(pixel_size), fill=color)
+
+        print('Converting SVG to HTML')
+        rough_string = ET.tostring(svg, 'utf-8')
+        reparsed = xml.dom.minidom.parseString(rough_string)
+        svg_code = reparsed.toprettyxml(indent="  ")
+
+        return HTMLResponse(content=svg_code)
