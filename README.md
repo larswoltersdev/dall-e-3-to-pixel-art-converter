@@ -2,7 +2,7 @@
 
 This is a experimental project to convert DALL-E 3 generated pixel art to 'real' pixel art.
 
-## Usage
+## How to use
 
 Make sure you install atleast Python 3 and install the required packages using `pip`. You will also need an OpenAI API account with credits.
 
